@@ -10,10 +10,12 @@
                     Daftar resep yang Anda buat.
                 </p>
             </div>
-            <a href="{{ route('resep.create') }}"
-                class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700">
-                + Buat Resep
-            </a>
+            @can('create', App\Models\Resep::class)
+                <a href="{{ route('resep.create') }}"
+                    class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700">
+                    + Buat Resep
+                </a>
+            @endcan
         </div>
     </x-slot>
 
@@ -34,16 +36,25 @@
                         {{ $status ? 'border-slate-200 text-slate-500 bg-white' : 'border-emerald-500 text-emerald-700 bg-emerald-50' }}">
                     Semua
                 </a>
-                <a href="{{ route('resep.index', ['status' => 'draft']) }}"
-                    class="text-xs px-2 py-1 rounded-full border
-                        {{ $status === 'draft' ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-slate-200 text-slate-500 bg-white' }}">
-                    Draft
-                </a>
+                @if (auth()->user()->role === 'doctor')
+                    <a href="{{ route('resep.index', ['status' => 'draft']) }}"
+                        class="text-xs px-2 py-1 rounded-full border
+                            {{ $status === 'draft' ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-slate-200 text-slate-500 bg-white' }}">
+                        Draft
+                    </a>
+                @endif
                 <a href="{{ route('resep.index', ['status' => 'completed']) }}"
                     class="text-xs px-2 py-1 rounded-full border
                         {{ $status === 'completed' ? 'border-emerald-500 text-emerald-700 bg-emerald-50' : 'border-slate-200 text-slate-500 bg-white' }}">
                     Completed
                 </a>
+                @if (auth()->user()->role === 'pharmacist')
+                    <a href="{{ route('resep.index', ['status' => 'processed']) }}"
+                        class="text-xs px-2 py-1 rounded-full border
+                        {{ $status === 'processed' ? 'border-rose-500 text-rose-700 bg-rose-50' : 'border-slate-200 text-slate-500 bg-white' }}">
+                        Processed
+                    </a>
+                @endif
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
@@ -56,6 +67,12 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Pasien
                             </th>
+                            @if (auth()->user()->role !== 'doctor')
+                                <th
+                                    class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                                    Dokter
+                                </th>
+                            @endif
                             <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Status
                             </th>
@@ -77,6 +94,11 @@
                                 <td class="px-4 py-3 text-slate-700">
                                     {{ $resep->pasien->nama_pasien ?? '-' }}
                                 </td>
+                                @if (auth()->user()->role !== 'doctor')
+                                    <td class="px-4 py-3 text-slate-700">
+                                        {{ $resep->dokter->name ?? '-' }}
+                                    </td>
+                                @endif
                                 <td class="px-4 py-3">
                                     <span
                                         class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium
@@ -90,18 +112,54 @@
                                 <td class="px-4 py-3 text-slate-700">
                                     {{ optional($resep->created_at)->format('d/m/Y H:i') }}
                                 </td>
-                                <td class="px-4 py-3 text-right space-x-2">
-                                    <a href="{{ route('resep.show', $resep) }}"
-                                        class="text-xs text-emerald-600 hover:text-emerald-700">
-                                        Detail
-                                    </a>
-                                    @if ($resep->status === 'draft')
-                                        <span class="text-slate-300">|</span>
-                                        <a href="{{ route('resep.edit', $resep) }}"
-                                            class="text-xs text-slate-600 hover:text-slate-800">
-                                            Edit
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        {{-- Detail selalu boleh --}}
+                                        <a href="{{ route('resep.show', $resep) }}"
+                                            class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary-500 hover:text-primary-600">
+                                            Detail
                                         </a>
-                                    @endif
+
+                                        {{-- Edit (dokter, status draft) --}}
+                                        @if ($resep->status === 'draft')
+                                            @can('update', $resep)
+                                                <a href="{{ route('resep.edit', $resep) }}"
+                                                    class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary-500 hover:text-primary-600">
+                                                    Edit
+                                                </a>
+                                            @endcan
+                                        @endif
+
+                                        {{-- Dokter kirim ke apotek: draft -> completed --}}
+                                        @if ($resep->status === 'draft')
+                                            @can('complete', $resep)
+                                                <form action="{{ route('resep.complete', $resep) }}" method="POST"
+                                                    onsubmit="return confirm('Kirim resep ini ke apotek? Setelah dikirim, resep tidak bisa diedit lagi.');"
+                                                    class="inline" {{-- penting: jangan block --}}>
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="inline-flex items-center rounded-full border border-emerald-200 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300">
+                                                        Kirim ke Apotek
+                                                    </button>
+                                                </form>
+                                            @endcan
+                                        @endif
+
+                                        {{-- Apoteker proses resep: completed -> processed --}}
+                                        @if ($resep->status === 'completed')
+                                            @can('process', $resep)
+                                                <form action="{{ route('resep.process', $resep) }}" method="POST"
+                                                    onsubmit="return confirm('Proses resep ini di apotek?');"
+                                                    class="inline">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="inline-flex items-center rounded-full border border-rose-200 px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 hover:border-rose-300">
+                                                        Proses di Apotek
+                                                    </button>
+                                                </form>
+                                            @endcan
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

@@ -136,51 +136,42 @@
                                     </dd>
                                 </div>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <div
-                                    class="mt-0.5 h-6 w-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 text-xs">
-                                    ✓
-                                </div>
-                                <div>
-                                    <dt class="font-semibold text-slate-900">Hak akses per peran</dt>
-                                    <dd class="text-slate-600 text-xs mt-1">
-                                        Fitur dibedakan antara dokter dan apoteker untuk menjaga keamanan data.
-                                    </dd>
-                                </div>
-                            </div>
                         </dl>
                     </div>
 
-                    {{-- Kanan: kartu ringkasan dummy --}}
+                    {{-- Summary hari ini --}}
                     <div class="lg:pl-8">
                         <div
                             class="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur shadow-sm p-5 space-y-4">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="text-xs font-semibold text-slate-500 uppercase">Ringkasan hari ini</div>
-                                    <div class="mt-1 text-sm text-slate-900 font-semibold">Contoh data dummy</div>
                                 </div>
                                 <span
-                                    class="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                                    Demo
+                                    class="inline-flex items-center rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700">
+                                    Live
                                 </span>
                             </div>
 
                             <div class="grid grid-cols-2 gap-3 text-xs">
                                 <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
                                     <div class="text-slate-500 mb-1">Resep hari ini</div>
-                                    <div class="text-2xl font-semibold text-slate-900">12</div>
-                                    <div class="mt-1 text-[11px] text-emerald-600">8 belum diproses</div>
+                                    <div class="text-2xl font-semibold text-slate-900">
+                                        {{ $totalResepHariIni ?? 0 }}
+                                    </div>
+                                    <div class="mt-1 text-[11px] text-emerald-600">
+                                        {{ $totalResepBelumDiproses ?? 0 }} belum diproses
+                                    </div>
                                 </div>
                                 <div class="rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
                                     <div class="text-slate-500 mb-1">Penjualan hari ini</div>
-                                    <div class="text-2xl font-semibold text-slate-900">Rp 3,5 jt</div>
-                                    <div class="mt-1 text-[11px] text-slate-500">Data contoh</div>
+                                    <div class="text-2xl font-semibold text-slate-900">
+                                        Rp {{ number_format($totalPenjualanHariIni ?? 0, 0, ',', '.') }}
+                                    </div>
+                                    <div class="mt-1 text-[11px] text-slate-500">
+                                        Data real dari sistem
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="border-t border-dashed border-slate-200 pt-3 text-[11px] text-slate-500">
-                                Setelah login, data di atas akan digantikan dengan data nyata dari sistem.
                             </div>
                         </div>
                     </div>

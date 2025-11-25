@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'RSAM'),
+    'name' => env('APP_NAME', 'Rumah Sakit Anwar Medika'),
 
     /*
     |--------------------------------------------------------------------------

@@ -160,12 +160,6 @@
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
 
-                @if (Route::has('resep.index'))
-                    <x-responsive-nav-link :href="route('resep.index')" :active="request()->routeIs('resep.*')">
-                        {{ __('Resep Dokter') }}
-                    </x-responsive-nav-link>
-                @endif
-
                 @if (Route::has('penjualan.index'))
                     <x-responsive-nav-link :href="route('penjualan.index')" :active="request()->routeIs('penjualan.*')">
                         {{ __('Penjualan') }}

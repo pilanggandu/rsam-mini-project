@@ -7,22 +7,33 @@ use App\Models\Pasien;
 use App\Models\Resep;
 use App\Models\ResepDetail;
 use Illuminate\Http\Request;
+use App\Models\Penjualan;
+use App\Models\PenjualanDetail;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ResepController extends Controller
 {
-    /**
-     * Tampilkan daftar resep milik dokter yang login.
-     */
     public function index(Request $request)
     {
+        if ($request->user()->cannot('viewAny', Resep::class)) {
+            abort(403);
+        }
+
         $user   = $request->user();
-        $status = $request->get('status'); // optional: draft / completed
+        $status = $request->get('status');
 
-        $query = Resep::with('pasien')
-            ->where('dokter_id', $user->id)
-            ->latest();
+        if($user->role === 'doctor') {
+            $query = Resep::with('pasien')
+                ->where('dokter_id', $user->id)
+                ->latest();
+        } else {
+            $query = Resep::with('pasien', 'dokter')
+                ->latest();
+        }
 
-        if ($status && in_array($status, ['draft', 'completed'], true)) {
+        if ($status && in_array($status, ['draft', 'completed', 'processed'], true)) {
             $query->where('status', $status);
         }
 
@@ -31,42 +42,46 @@ class ResepController extends Controller
         return view('resep.index', compact('reseps', 'status'));
     }
 
-    /**
-     * Form buat resep baru.
-     */
-    public function create()
+    public function create(Request $request)
     {
+        if ($request->user()->cannot('create', Resep::class)) {
+            abort(403);
+        }
+
         $pasiens = Pasien::orderBy('nama_pasien')->get();
         $obats   = Obat::orderBy('nama_obat')->get();
 
-        return view('resep.create', compact('pasiens', 'obats'));
+        return view('resep.partials.create', compact('pasiens', 'obats'));
     }
 
-    /**
-     * Simpan resep baru.
-     */
     public function store(Request $request)
     {
+
+        if ($request->user()->cannot('create', Resep::class)) {
+            abort(403);
+        }
+
         $user = $request->user();
 
         $validated = $request->validate([
-            'pasien_id'           => ['required', 'exists:pasiens,id'],
-            'status'              => ['required', 'in:draft,completed'],
-            'catatan'             => ['nullable', 'string'],
-            'details'             => ['required', 'array', 'min:1'],
-            'details.*.obat_id'   => ['required', 'exists:obats,id'],
-            'details.*.jumlah'    => ['required', 'integer', 'min:1'],
-            'details.*.dosis'     => ['required', 'string', 'max:255'],
+            'pasien_id'            => ['required', 'exists:pasiens,id'],
+            'catatan'              => ['nullable', 'string', 'max:1000'],
+
+            'details'              => ['required', 'array', 'min:1'],
+            'details.*.obat_id'    => ['required', 'integer', 'exists:obats,id', 'distinct'],
+            'details.*.jumlah'     => ['required', 'integer', 'min:1'],
+            'details.*.dosis'      => ['required', 'string', 'max:255'],
+        ], [
+            'details.*.obat_id.distinct' => 'Obat yang sama tidak boleh dipilih lebih dari satu kali.',
+            'details.*.obat_id.required' => 'Pilih obat untuk setiap baris resep.',
         ]);
 
         DB::transaction(function () use ($validated, $user) {
-            $nomorResep = $this->generateNomorResep();
-
             $resep = Resep::create([
-                'nomor_resep' => $nomorResep,
+                'nomor_resep' => Resep::generateNomorResep(),
                 'pasien_id'   => $validated['pasien_id'],
                 'dokter_id'   => $user->id,
-                'status'      => $validated['status'],
+                'status'      => 'draft',
                 'catatan'     => $validated['catatan'] ?? null,
             ]);
 
@@ -85,24 +100,22 @@ class ResepController extends Controller
             ->with('status', 'Resep berhasil dibuat.');
     }
 
-    /**
-     * Detail resep.
-     */
-    public function show(Resep $resep)
+    public function show(Request $request, Resep $resep)
     {
-        $this->authorizeResep($resep);
+        if ($request->user()->cannot('view', $resep)) {
+            abort(403);
+        }
 
         $resep->load(['pasien', 'dokter', 'details.obat']);
 
-        return view('resep.show', compact('resep'));
+        return view('resep.partials.show', compact('resep'));
     }
 
-    /**
-     * Form edit resep (hanya untuk status draft).
-     */
-    public function edit(Resep $resep)
+    public function edit(Request $request, Resep $resep)
     {
-        $this->authorizeResep($resep);
+        if ($request->user()->cannot('update', $resep)) {
+            abort(403);
+        }
 
         if ($resep->status !== 'draft') {
             return redirect()
@@ -115,15 +128,14 @@ class ResepController extends Controller
 
         $resep->load('details');
 
-        return view('resep.edit', compact('resep', 'pasiens', 'obats'));
+        return view('resep.partials.edit', compact('resep', 'pasiens', 'obats'));
     }
 
-    /**
-     * Update resep (draft → draft / completed).
-     */
     public function update(Request $request, Resep $resep)
     {
-        $this->authorizeResep($resep);
+        if ($request->user()->cannot('update', $resep)) {
+            abort(403);
+        }
 
         if ($resep->status !== 'draft') {
             return redirect()
@@ -132,19 +144,20 @@ class ResepController extends Controller
         }
 
         $validated = $request->validate([
-            'pasien_id'           => ['required', 'exists:pasiens,id'],
-            'status'              => ['required', 'in:draft,completed'],
-            'catatan'             => ['nullable', 'string'],
-            'details'             => ['required', 'array', 'min:1'],
-            'details.*.obat_id'   => ['required', 'exists:obats,id'],
-            'details.*.jumlah'    => ['required', 'integer', 'min:1'],
-            'details.*.dosis'     => ['required', 'string', 'max:255'],
+            'pasien_id'            => ['required', 'exists:pasiens,id'],
+            'catatan'              => ['nullable', 'string', 'max:1000'],
+
+            'details'              => ['required', 'array', 'min:1'],
+            'details.*.obat_id'    => ['required', 'integer', 'exists:obats,id', 'distinct'],
+            'details.*.jumlah'     => ['required', 'integer', 'min:1'],
+            'details.*.dosis'      => ['required', 'string', 'max:255'],
+        ], [
+            'details.*.obat_id.distinct' => 'Obat yang sama tidak boleh dipilih lebih dari satu kali.',
         ]);
 
         DB::transaction(function () use ($validated, $resep) {
             $resep->update([
                 'pasien_id' => $validated['pasien_id'],
-                'status'    => $validated['status'],
                 'catatan'   => $validated['catatan'] ?? null,
             ]);
 
@@ -166,36 +179,104 @@ class ResepController extends Controller
             ->with('status', 'Resep berhasil diperbarui.');
     }
 
-    // ===================== Helper =====================
-
-    /**
-     * Generate nomor resep dengan format RXYYYYMMDDxxx
-     * contoh: RX20251124001
-     */
-    protected function generateNomorResep(): string
+    public function complete(Request $request, Resep $resep): RedirectResponse
     {
-        $prefix = 'RX' . now()->format('Ymd');
-
-        $last = Resep::where('nomor_resep', 'like', $prefix . '%')
-            ->orderBy('nomor_resep', 'desc')
-            ->first();
-
-        $nextNumber = 1;
-        if ($last) {
-            $lastRunning = (int) substr($last->nomor_resep, -3);
-            $nextNumber  = $lastRunning + 1;
+        if ($request->user()->cannot('complete', $resep)) {
+            abort(403);
         }
 
-        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        if ($resep->status !== 'draft') {
+            return redirect()
+                ->route('resep.show', $resep)
+                ->with('error', 'Resep ini tidak dapat dikirim ke apotek.');
+        }
+
+        $resep->status = 'completed';
+        $resep->updated_at = now();
+        $resep->save();
+
+        return redirect()
+            ->route('resep.show', $resep)
+            ->with('status', 'Resep berhasil dikirim ke apotek.');
     }
 
-    /**
-     * Pastikan resep milik dokter yang login.
-     */
-    protected function authorizeResep(Resep $resep): void
+    public function process(Request $request, Resep $resep): RedirectResponse
     {
-        if (auth()->id() !== $resep->dokter_id) {
-            abort(403, 'Anda tidak berhak mengakses resep ini.');
+        if ($request->user()->cannot('process', $resep)) {
+            abort(403);
         }
+
+        if ($resep->status === 'processed') {
+            return redirect()
+                ->route('resep.show', $resep)
+                ->with('error', 'Resep ini sudah diproses oleh apotek.');
+        }
+
+            try {
+                $penjualan = $this->createPenjualanFromResep($resep, $request->user());
+            } catch (\Throwable $e) {
+                return redirect()
+                    ->route('resep.show', $resep)
+                    ->with('error', $e->getMessage());
+            }
+
+
+        return redirect()
+            ->route('resep.show', $resep)
+            ->with('status', 'Resep berhasil diproses oleh apotek.');
+    }
+
+    // ===================== HELPER =====================
+
+    protected function createPenjualanFromResep(Resep $resep, User $apoteker): Penjualan
+    {
+        return DB::transaction(function () use ($resep, $apoteker) {
+            // pastikan relasi sudah ke-load
+            $resep->loadMissing('details.obat');
+
+            $totalHarga = 0;
+
+            // 1. Header penjualan
+            $penjualan = Penjualan::create([
+                'nomor_transaksi' => Penjualan::generateNomorTransaksi(),
+                'resep_id'        => $resep->id,
+                'apoteker_id'     => $apoteker->id,
+                'total_harga'     => 0, // di-update setelah loop
+            ]);
+
+            // 2. Detail penjualan (copy dari detail resep)
+            foreach ($resep->details as $detail) {
+                $obat = $detail->obat; // sudah di-load di loadMissing
+
+                if (! $obat) {
+                    throw new \RuntimeException('Obat pada salah satu detail resep tidak ditemukan.');
+                }
+
+                $hargaSatuan = $obat->harga_jual ?? 0;
+                $subtotal    = $hargaSatuan * $detail->jumlah;
+
+                PenjualanDetail::create([
+                    'penjualan_id' => $penjualan->id,
+                    'obat_id'      => $obat->id,
+                    'jumlah'       => $detail->jumlah,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal'     => $subtotal,
+                ]);
+
+                $totalHarga += $subtotal;
+            }
+
+            // 3. Update total di header
+            $penjualan->update([
+                'total_harga' => $totalHarga,
+            ]);
+
+            // 4. Ubah status resep jadi processed
+            $resep->update([
+                'status' => 'processed',
+            ]);
+
+            return $penjualan;
+        });
     }
 }

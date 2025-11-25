@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Resep::class)->constrained('reseps')->cascadeOnDelete();
             $table->foreignIdFor(Obat::class)->constrained('obats')->restrictOnDelete();
             $table->unsignedInteger('jumlah');
-            $table->string('dosis'); // contoh: "3x1", "2x1 sesudah makan"
+            $table->string('dosis');
             $table->timestamps();
         });
     }

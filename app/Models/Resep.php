@@ -40,4 +40,25 @@ class Resep extends Model
     {
         return $this->hasOne(Penjualan::class);
     }
+
+    /**
+     * Generate nomor resep dengan format RXYYYYMMDDxxx
+     * contoh: RX20251124001
+     */
+    protected function generateNomorResep(): string
+    {
+        $prefix = 'RX' . now()->format('Ymd');
+
+        $last = static::where('nomor_resep', 'like', $prefix . '%')
+            ->orderBy('nomor_resep', 'desc')
+            ->first();
+
+        $nextNumber = 1;
+        if ($last) {
+            $lastRunning = (int) substr($last->nomor_resep, -3);
+            $nextNumber  = $lastRunning + 1;
+        }
+
+        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    }
 }

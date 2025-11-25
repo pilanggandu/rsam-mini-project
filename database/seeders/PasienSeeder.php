@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Pasien;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PasienSeeder extends Seeder
@@ -58,17 +57,6 @@ class PasienSeeder extends Seeder
 
         foreach ($pasiens as $pasien) {
             Pasien::create($pasien);
-        }
-
-        for ($i = 6; $i <= 20; $i++) {
-            Pasien::create([
-                'no_rekam_medis' => 'RM'.str_pad($i, 4, '0', STR_PAD_LEFT),
-                'nama_pasien'    => 'Pasien '.$i,
-                'tanggal_lahir'  => fake()->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
-                'jenis_kelamin'  => fake()->randomElement(['L', 'P']),
-                'alamat'         => fake()->streetAddress().', Sidoarjo',
-                'no_hp'          => '08'.fake()->numerify('##########'),
-            ]);
         }
     }
 }

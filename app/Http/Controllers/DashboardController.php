@@ -2,73 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Services\DoctorDashboardService;
+use App\Services\PharmacistDashboardService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request)
-    {
-        $user = $request->user();
-
-        if ($user->role === 'dokter') {
-            return $this->dokterDashboard($user);
-        }
-
-        // sementara untuk role selain dokter, pakai view dashboard lama
-        return view('dashboard');
+    public function __construct(
+        protected DoctorDashboardService $doctorDashboard,
+        protected PharmacistDashboardService $pharmacistDashboard,
+    ) {
     }
 
-    protected function dokterDashboard($user)
+    public function __invoke(Request $request): View
     {
-        $today        = Carbon::today();
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth   = Carbon::now()->endOfMonth();
+        /** @var User $user */
+        $user = $request->user();
 
-        // 1. total resep saya hari ini
-        $total_resep_saya_hari_ini = Resep::where('dokter_id', $user->id)
-            ->whereDate('created_at', $today)
-            ->count();
+        return match ($user->role) {
+            'doctor', 'dokter'        => $this->dokterDashboard($user),
+            'pharmacist', 'apoteker'  => $this->apotekerDashboard($user),
+            default                   => $this->defaultDashboard($user),
+        };
+    }
 
-        // 2. pasien unik bulan ini
-        $total_pasien_unik_bulan_ini = Resep::where('dokter_id', $user->id)
-            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->distinct('pasien_id')
-            ->count('pasien_id');
+    /**
+     * Khusus dashboard dokter.
+     */
+    protected function dokterDashboard(User $user): View
+    {
+        $data = $this->doctorDashboard->getSummary($user);
 
-        // 3. resep menunggu apotek (sudah completed oleh dokter, belum ada penjualan)
-        $total_resep_menunggu_apotek = Resep::where('dokter_id', $user->id)
-            ->where('status', 'completed')
-            ->whereDoesntHave('penjualan')
-            ->count();
+        return view('dashboard', array_merge($data, [
+            'user'      => $user,
+            'role'      => 'doctor',
+            'roleLabel' => 'Dokter',
+        ]));
+    }
 
-        // 4. resep draft (belum dilengkapi / belum dikirim)
-        $total_resep_draft = Resep::where('dokter_id', $user->id)
-            ->where('status', 'draft')
-            ->count();
+    /**
+     * Khusus dashboard apoteker.
+     */
+    protected function apotekerDashboard(User $user): View
+    {
+        $data = $this->pharmacistDashboard->getSummary($user);
 
-        // daftar resep terbaru dokter
-        $daftar_resep_terbaru = Resep::with('pasien')
-            ->where('dokter_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
+        return view('dashboard', array_merge($data, [
+            'user'      => $user,
+            'role'      => 'pharmacist',
+            'roleLabel' => 'Apoteker',
+        ]));
+    }
 
-        // daftar resep menunggu apotek (detail list)
-        $daftar_resep_menunggu_apotek = Resep::with('pasien')
-            ->where('dokter_id', $user->id)
-            ->where('status', 'completed')
-            ->whereDoesntHave('penjualan')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('dashboard-dokter', compact(
-            'total_resep_saya_hari_ini',
-            'total_pasien_unik_bulan_ini',
-            'total_resep_menunggu_apotek',
-            'total_resep_draft',
-            'daftar_resep_terbaru',
-            'daftar_resep_menunggu_apotek'
-        ));
+    /**
+     * Fallback untuk role lain.
+     */
+    protected function defaultDashboard(User $user): View
+    {
+        return view('dashboard', [
+            'user'      => $user,
+            'role'      => $user->role,
+            'roleLabel' => 'User',
+        ]);
     }
 }

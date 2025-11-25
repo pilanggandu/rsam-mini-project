@@ -16,6 +16,11 @@ class Obat extends Model
         'harga_jual',
     ];
 
+    protected $casts = [
+        'stok'       => 'integer',
+        'harga_jual' => 'decimal:2',
+    ];
+
     public function resepDetails()
     {
         return $this->hasMany(ResepDetail::class);

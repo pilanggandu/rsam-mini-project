@@ -11,14 +11,15 @@
                     pada {{ optional($resep->created_at)->format('d/m/Y H:i') }}.
                 </p>
             </div>
-            <a href="{{ route('resep.index') }}" class="text-sm text-slate-500 hover:text-slate-700">
-                &larr; Kembali ke daftar
+            <a href="{{ route('resep.index') }}"
+                class="inline-flex items-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                Kembali
             </a>
         </div>
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('status'))
                 <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
@@ -32,18 +33,31 @@
                 </div>
             @endif
 
-            {{-- Info pasien & status --}}
+            {{-- Info pasien, dokter & status --}}
             <div class="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div>
-                        <h3 class="text-sm font-semibold text-slate-900 mb-1">
-                            Pasien
-                        </h3>
-                        <div class="text-sm text-slate-800">
-                            {{ $resep->pasien->nama_pasien ?? '-' }}
+                    <div class="space-y-3">
+                        {{-- Pasien --}}
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-900 mb-1">
+                                Pasien
+                            </h3>
+                            <div class="text-sm text-slate-800">
+                                {{ $resep->pasien->nama_pasien ?? '-' }}
+                            </div>
+                            <div class="mt-0.5 text-xs text-slate-500">
+                                No. RM: {{ $resep->pasien->no_rekam_medis ?? '-' }}
+                            </div>
                         </div>
-                        <div class="mt-0.5 text-xs text-slate-500">
-                            No. RM: {{ $resep->pasien->no_rekam_medis ?? '-' }}
+
+                        {{-- Dokter --}}
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-900 mb-1">
+                                Dokter
+                            </h3>
+                            <div class="text-sm text-slate-800">
+                                {{ $resep->dokter->name ?? '-' }}
+                            </div>
                         </div>
                     </div>
 
@@ -94,9 +108,37 @@
 
             {{-- Detail obat --}}
             <div class="bg-white shadow-sm rounded-2xl border border-slate-100 p-6">
-                <h3 class="text-sm font-semibold text-slate-900 mb-3">
-                    Daftar Obat
-                </h3>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-slate-900">
+                        Daftar Obat
+                    </h3>
+
+                    <div class="flex items-center gap-2">
+                        {{-- Dokter boleh edit kalau masih draft --}}
+                        @if ($resep->status === 'draft')
+                            @can('update', $resep)
+                                <a href="{{ route('resep.edit', $resep) }}"
+                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium bg-slate-100 text-slate-800 hover:bg-slate-200">
+                                    Edit Resep
+                                </a>
+                            @endcan
+                        @endif
+
+                        {{-- Apoteker: proses resep kalau status completed --}}
+                        @if ($resep->status === 'completed')
+                            @can('process', $resep)
+                                <form action="{{ route('resep.process', $resep) }}" method="POST"
+                                    onsubmit="return confirm('Proses resep ini di apotek?');">
+                                    @csrf
+                                    <button type="submit"
+                                        class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs md:text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700">
+                                        Proses di Apotek
+                                    </button>
+                                </form>
+                            @endcan
+                        @endif
+                    </div>
+                </div>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-100 text-sm">
@@ -146,15 +188,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                @if ($resep->status === 'draft')
-                    <div class="mt-4 flex justify-end">
-                        <a href="{{ route('resep.edit', $resep) }}"
-                            class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 text-slate-800 hover:bg-slate-200">
-                            Edit Resep
-                        </a>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
