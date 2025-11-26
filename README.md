@@ -353,7 +353,82 @@ npm run build
 
 ---
 
-## 9. 💬 Kontribusi
+## 9. 🖼️ Screenshot Aplikasi
+
+Semua screenshot berada di folder `public/screenshots`.
+
+### 1. Halaman Utama & Autentikasi
+
+#### 1.1. Homepage
+
+![Homepage](public/screenshots/homepage.png)
+
+#### 1.2. Login
+
+![Halaman Login](public/screenshots/login.png)
+
+#### 1.3. Register
+
+![Halaman Register](public/screenshots/register.png)
+
+---
+
+### 2. Dashboard
+
+#### 2.1. Dashboard Dokter
+
+![Dashboard Dokter](<public/screenshots/dashboard (dokter).png>)
+
+#### 2.2. Dashboard Apoteker
+
+![Dashboard Apoteker](<public/screenshots/dashboard (apoteker).png>)
+
+---
+
+### 3. Master Data
+
+#### 3.1. Daftar Pasien
+
+![Daftar Pasien](public/screenshots/pasien.png)
+
+#### 3.2. Daftar Obat
+
+![Daftar Obat](public/screenshots/obat.png)
+
+#### 3.3. Detail Obat
+
+![Detail Obat](public/screenshots/detail-obat.png)
+
+---
+
+### 4. Modul Resep
+
+#### 4.1. Daftar Resep Dokter
+
+![Daftar Resep](public/screenshots/resep.png)
+
+#### 4.2. Form Input Resep
+
+![Form Resep](public/screenshots/form-resep.png)
+
+#### 4.3. Detail Resep
+
+![Detail Resep](public/screenshots/detail-resep.png)
+
+---
+
+### 5. Modul Penjualan
+
+#### 5.1. Daftar Penjualan
+
+![Daftar Penjualan](public/screenshots/penjualan.png)
+
+#### 5.2. Detail Penjualan
+
+![Detail Penjualan](public/screenshots/detail-penjualan.png)
+
+
+## 10. 💬 Kontribusi
 
 1. Fork repository ini.
 2. Buat branch baru:  
@@ -366,7 +441,7 @@ npm run build
 
 ---
 
-## 10. 📄 Lisensi
+## 11. 📄 Lisensi
 
 Project ini menggunakan lisensi **MIT** (default dari Laravel).  
 Silakan bebas memodifikasi sesuai kebutuhan.
