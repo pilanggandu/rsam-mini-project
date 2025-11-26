@@ -1,4 +1,3 @@
-{{-- resources/views/penjualan/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -10,7 +9,6 @@
                     Daftar transaksi penjualan obat dari resep dokter.
                 </p>
             </div>
-            {{-- kalau mau filter nanti bisa taruh tombol di sini --}}
         </div>
     </x-slot>
 
@@ -129,13 +127,10 @@
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="flex items-center justify-end gap-2">
-                                            {{-- Tombol detail selalu ada --}}
                                             <a href="{{ route('penjualan.show', $penjualan) }}"
                                                 class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary-500 hover:text-primary-600">
                                                 Detail
                                             </a>
-
-                                            {{-- Tombol finalize hanya jika belum paid & role pharmacist/admin --}}
                                             @if ($penjualan->status !== 'paid' && auth()->user()->role === 'pharmacist')
                                                 <form action="{{ route('penjualan.finalize', $penjualan) }}"
                                                     method="POST"

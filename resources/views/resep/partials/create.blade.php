@@ -1,4 +1,3 @@
-{{-- resources/views/resep/create.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -50,25 +49,24 @@
                     <form action="{{ route('resep.store') }}" method="POST" class="space-y-6">
                         @csrf
 
-                        {{-- Pasien & status --}}
                         <div class="grid grid-cols-1 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-slate-700 mb-1">
                                     Pasien <span class="text-rose-500">*</span>
                                 </label>
-                                <select name="pasien_id"
-                                    class="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
-                                    required>
+
+                                @php
+                                    $currentPasienId = old('pasien_id', $selectedPasienId ?? '');
+                                @endphp
+
+                                <select name="pasien_id" class="mt-1 block w-full rounded-lg border-slate-300 text-sm">
                                     <option value="">Pilih pasien</option>
                                     @foreach ($pasiens as $pasien)
-                                        <option value="{{ $pasien->id }}" @selected(old('pasien_id') == $pasien->id)>
+                                        <option value="{{ $pasien->id }}" @selected($currentPasienId == $pasien->id)>
                                             {{ $pasien->no_rekam_medis }} - {{ $pasien->nama_pasien }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('pasien_id')
-                                    <p class="mt-1 text-xs text-rose-600">{{ $message }}</p>
-                                @enderror
                             </div>
                         </div>
 

@@ -1,4 +1,3 @@
-{{-- resources/views/resep/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -114,13 +113,10 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-2">
-                                        {{-- Detail selalu boleh --}}
                                         <a href="{{ route('resep.show', $resep) }}"
                                             class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:border-primary-500 hover:text-primary-600">
                                             Detail
                                         </a>
-
-                                        {{-- Edit (dokter, status draft) --}}
                                         @if ($resep->status === 'draft')
                                             @can('update', $resep)
                                                 <a href="{{ route('resep.edit', $resep) }}"
@@ -129,13 +125,11 @@
                                                 </a>
                                             @endcan
                                         @endif
-
-                                        {{-- Dokter kirim ke apotek: draft -> completed --}}
                                         @if ($resep->status === 'draft')
                                             @can('complete', $resep)
                                                 <form action="{{ route('resep.complete', $resep) }}" method="POST"
                                                     onsubmit="return confirm('Kirim resep ini ke apotek? Setelah dikirim, resep tidak bisa diedit lagi.');"
-                                                    class="inline" {{-- penting: jangan block --}}>
+                                                    class="inline">
                                                     @csrf
                                                     <button type="submit"
                                                         class="inline-flex items-center rounded-full border border-emerald-200 px-3 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300">
@@ -145,7 +139,6 @@
                                             @endcan
                                         @endif
 
-                                        {{-- Apoteker proses resep: completed -> processed --}}
                                         @if ($resep->status === 'completed')
                                             @can('process', $resep)
                                                 <form action="{{ route('resep.process', $resep) }}" method="POST"

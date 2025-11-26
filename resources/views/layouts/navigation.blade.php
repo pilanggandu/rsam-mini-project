@@ -22,21 +22,18 @@
                             {{ __('Dashboard') }}
                         </x-nav-link>
 
-                        {{-- Daftar Pasien (dummy data tapi tetap pakai route) --}}
-                        @if (Route::has('pasien.index'))
-                            <x-nav-link :href="route('pasien.index')" :active="request()->routeIs('pasien.*')">
-                                {{ __('Pasien') }}
-                            </x-nav-link>
-                        @endif
-
-                        {{-- Resep saya --}}
                         @if (Route::has('resep.index'))
                             <x-nav-link :href="route('resep.index')" :active="request()->routeIs('resep.*')">
                                 {{ __('Resep') }}
                             </x-nav-link>
                         @endif
 
-                        {{-- Daftar Obat (view-only untuk dokter) --}}
+                        @if (Route::has('pasien.index'))
+                            <x-nav-link :href="route('pasien.index')" :active="request()->routeIs('pasien.*')">
+                                {{ __('Daftar Pasien') }}
+                            </x-nav-link>
+                        @endif
+
                         @if (Route::has('obat.index'))
                             <x-nav-link :href="route('obat.index')" :active="request()->routeIs('obat.*')">
                                 {{ __('Daftar Obat') }}
@@ -44,7 +41,7 @@
                         @endif
                     @endif
 
-                    {{-- Menu untuk APOTEKER (nanti) --}}
+                    {{-- Menu untuk APOTEKER --}}
                     @if ($user && $user->role === 'pharmacist')
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
@@ -91,6 +88,9 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <x-dropdown-link :href="url('/')">
+                            {{ __('Halaman Depan') }}
+                        </x-dropdown-link>
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -135,15 +135,15 @@
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
 
-                @if (Route::has('pasien.index'))
-                    <x-responsive-nav-link :href="route('pasien.index')" :active="request()->routeIs('pasien.*')">
-                        {{ __('Pasien') }}
-                    </x-responsive-nav-link>
-                @endif
-
                 @if (Route::has('resep.index'))
                     <x-responsive-nav-link :href="route('resep.index')" :active="request()->routeIs('resep.*')">
                         {{ __('Resep') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if (Route::has('pasien.index'))
+                    <x-responsive-nav-link :href="route('pasien.index')" :active="request()->routeIs('pasien.*')">
+                        {{ __('Daftar Pasien') }}
                     </x-responsive-nav-link>
                 @endif
 
@@ -159,6 +159,12 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
+
+                @if (Route::has('resep.index'))
+                    <x-responsive-nav-link :href="route('resep.index')" :active="request()->routeIs('resep.*')">
+                        {{ __('Resep Dokter') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 @if (Route::has('penjualan.index'))
                     <x-responsive-nav-link :href="route('penjualan.index')" :active="request()->routeIs('penjualan.*')">
@@ -183,6 +189,9 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="url('/')">
+                    {{ __('Halaman Depan') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>

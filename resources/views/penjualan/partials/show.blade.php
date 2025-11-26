@@ -1,4 +1,3 @@
-{{-- resources/views/penjualan/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -128,14 +127,11 @@
                 </div>
             </div>
 
-            {{-- Detail obat --}}
             <div class="bg-white shadow-sm rounded-2xl border border-slate-100 p-6">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-slate-900">
                         Detail Penjualan
                     </h3>
-
-                    {{-- Tombol finalize kalau masih draft --}}
                     @if ($penjualan->status !== 'paid' && in_array(auth()->user()->role, ['pharmacist', 'admin'], true))
                         <form action="{{ route('penjualan.finalize', $penjualan) }}" method="POST"
                             onsubmit="return confirm('Selesaikan penjualan ini dan kurangi stok obat?');">

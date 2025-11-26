@@ -1,4 +1,3 @@
-{{-- resources/views/resep/edit.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -116,7 +115,6 @@
                             <div class="space-y-3">
                                 <template x-for="(row, index) in details" :key="index">
                                     <div class="grid grid-cols-12 gap-3 items-end">
-                                        {{-- Obat --}}
                                         <div class="col-span-12 md:col-span-5">
                                             <label class="block text-[11px] font-medium text-slate-600 mb-1">
                                                 Obat
@@ -132,8 +130,6 @@
                                                 @endforeach
                                             </select>
                                         </div>
-
-                                        {{-- Jumlah --}}
                                         <div class="col-span-6 md:col-span-2">
                                             <label class="block text-[11px] font-medium text-slate-600 mb-1">
                                                 Jumlah
@@ -142,8 +138,6 @@
                                                 class="block w-full rounded-lg border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
                                                 :name="`details[${index}][jumlah]`" x-model.number="row.jumlah" required>
                                         </div>
-
-                                        {{-- Dosis --}}
                                         <div class="col-span-6 md:col-span-4">
                                             <label class="block text-[11px] font-medium text-slate-600 mb-1">
                                                 Dosis
@@ -152,8 +146,6 @@
                                                 class="block w-full rounded-lg border-slate-300 text-sm focus:border-primary-500 focus:ring-primary-500"
                                                 :name="`details[${index}][dosis]`" x-model="row.dosis" required>
                                         </div>
-
-                                        {{-- Hapus --}}
                                         <div class="col-span-12 md:col-span-1 flex justify-start md:justify-end">
                                             <button type="button" @click="removeRow(index)" x-show="details.length > 1"
                                                 class="mt-2 md:mt-0 inline-flex items-center justify-center
@@ -169,8 +161,6 @@
                                 </template>
                             </div>
                         </div>
-
-                        {{-- Submit --}}
                         <div class="pt-4 border-t border-slate-100 flex justify-end">
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700">

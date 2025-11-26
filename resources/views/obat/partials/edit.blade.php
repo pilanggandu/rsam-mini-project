@@ -17,9 +17,7 @@
     </x-slot>
 
     <div class="py-6">
-        {{-- container sama seperti page lain --}}
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{-- CARD FULL WIDTH DI DALAM CONTAINER --}}
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                 <form method="POST" action="{{ route('obat.update', $obat) }}" class="space-y-5">
                     @csrf

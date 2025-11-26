@@ -1,4 +1,3 @@
-{{-- resources/views/resep/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
@@ -32,12 +31,9 @@
                     {{ session('error') }}
                 </div>
             @endif
-
-            {{-- Info pasien, dokter & status --}}
             <div class="bg-white shadow-sm rounded-2xl border border-slate-100 p-6 space-y-4">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div class="space-y-3">
-                        {{-- Pasien --}}
                         <div>
                             <h3 class="text-sm font-semibold text-slate-900 mb-1">
                                 Pasien
@@ -49,8 +45,6 @@
                                 No. RM: {{ $resep->pasien->no_rekam_medis ?? '-' }}
                             </div>
                         </div>
-
-                        {{-- Dokter --}}
                         <div>
                             <h3 class="text-sm font-semibold text-slate-900 mb-1">
                                 Dokter
@@ -106,7 +100,6 @@
                 @endif
             </div>
 
-            {{-- Detail obat --}}
             <div class="bg-white shadow-sm rounded-2xl border border-slate-100 p-6">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-slate-900">
@@ -114,7 +107,6 @@
                     </h3>
 
                     <div class="flex items-center gap-2">
-                        {{-- Dokter boleh edit kalau masih draft --}}
                         @if ($resep->status === 'draft')
                             @can('update', $resep)
                                 <a href="{{ route('resep.edit', $resep) }}"
@@ -124,7 +116,6 @@
                             @endcan
                         @endif
 
-                        {{-- Apoteker: proses resep kalau status completed --}}
                         @if ($resep->status === 'completed')
                             @can('process', $resep)
                                 <form action="{{ route('resep.process', $resep) }}" method="POST"

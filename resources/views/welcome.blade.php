@@ -56,7 +56,6 @@
         <main class="flex-1">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div class="grid gap-10 lg:grid-cols-2 items-center">
-                    {{-- Kiri: teks utama --}}
                     <div>
                         <div
                             class="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 text-xs px-3 py-1 mb-4">
@@ -98,7 +97,6 @@
                             @endauth
                         </div>
 
-                        {{-- List fitur singkat --}}
                         <dl class="mt-8 grid gap-4 sm:grid-cols-2 text-sm">
                             <div class="flex items-start gap-3">
                                 <div
@@ -139,7 +137,6 @@
                         </dl>
                     </div>
 
-                    {{-- Summary hari ini --}}
                     <div class="lg:pl-8">
                         <div
                             class="rounded-3xl border border-slate-200 bg-white/80 backdrop-blur shadow-sm p-5 space-y-4">
@@ -179,7 +176,6 @@
             </div>
         </main>
 
-        {{-- Footer --}}
         <footer class="border-t border-slate-200 bg-white">
             <div
                 class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">

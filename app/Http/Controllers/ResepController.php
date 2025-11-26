@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\StokTidakCukupException;
 use App\Models\Obat;
 use App\Models\Pasien;
 use App\Models\Resep;
@@ -51,7 +52,17 @@ class ResepController extends Controller
         $pasiens = Pasien::orderBy('nama_pasien')->get();
         $obats   = Obat::orderBy('nama_obat')->get();
 
-        return view('resep.partials.create', compact('pasiens', 'obats'));
+        $selectedPasienId = (int) $request->query('pasien_id');
+
+        if ($selectedPasienId && ! $pasiens->contains('id', $selectedPasienId)) {
+            $selectedPasienId = null;
+        }
+
+        return view('resep.partials.create', compact(
+            'pasiens',
+            'obats',
+            'selectedPasienId',
+        ));
     }
 
     public function store(Request $request)
@@ -214,12 +225,11 @@ class ResepController extends Controller
 
             try {
                 $penjualan = $this->createPenjualanFromResep($resep, $request->user());
-            } catch (\Throwable $e) {
+             } catch (StokTidakCukupException $e) {
                 return redirect()
                     ->route('resep.show', $resep)
                     ->with('error', $e->getMessage());
             }
-
 
         return redirect()
             ->route('resep.show', $resep)
@@ -234,23 +244,48 @@ class ResepController extends Controller
             // pastikan relasi sudah ke-load
             $resep->loadMissing('details.obat');
 
+            // --- 0. CEK STOK DULU TANPA MENGURANGI ---
+            $kekurangan = [];
+
+            foreach ($resep->details as $detail) {
+                $obat = $detail->obat;
+
+                if (! $obat) {
+                    throw new \RuntimeException('Obat pada salah satu detail resep tidak ditemukan.');
+                }
+
+                if ($obat->stok < $detail->jumlah) {
+                    $kekurangan[] = sprintf(
+                        '%s (kode %s) — stok %d, diminta %d',
+                        $obat->nama_obat,
+                        $obat->kode_obat,
+                        $obat->stok,
+                        $detail->jumlah
+                    );
+                }
+            }
+
+            if (! empty($kekurangan)) {
+                // gabungkan jadi 1 pesan yang enak dibaca di view
+                $message = "Stok obat tidak mencukupi:\n- " . implode("\n- ", $kekurangan);
+
+                 throw new StokTidakCukupException($message);
+            }
+
+            // --- 1. Header penjualan ---
             $totalHarga = 0;
 
-            // 1. Header penjualan
             $penjualan = Penjualan::create([
                 'nomor_transaksi' => Penjualan::generateNomorTransaksi(),
                 'resep_id'        => $resep->id,
                 'apoteker_id'     => $apoteker->id,
                 'total_harga'     => 0, // di-update setelah loop
+                'status'          => 'pending', // misal kamu pakai kolom status
             ]);
 
-            // 2. Detail penjualan (copy dari detail resep)
+            // --- 2. Detail penjualan (copy dari detail resep) ---
             foreach ($resep->details as $detail) {
-                $obat = $detail->obat; // sudah di-load di loadMissing
-
-                if (! $obat) {
-                    throw new \RuntimeException('Obat pada salah satu detail resep tidak ditemukan.');
-                }
+                $obat = $detail->obat;
 
                 $hargaSatuan = $obat->harga_jual ?? 0;
                 $subtotal    = $hargaSatuan * $detail->jumlah;
@@ -266,12 +301,12 @@ class ResepController extends Controller
                 $totalHarga += $subtotal;
             }
 
-            // 3. Update total di header
+            // --- 3. Update total di header ---
             $penjualan->update([
                 'total_harga' => $totalHarga,
             ]);
 
-            // 4. Ubah status resep jadi processed
+            // --- 4. Ubah status resep jadi processed ---
             $resep->update([
                 'status' => 'processed',
             ]);
@@ -279,4 +314,5 @@ class ResepController extends Controller
             return $penjualan;
         });
     }
+
 }

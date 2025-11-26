@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ObatController;
+use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResepController;
@@ -44,6 +45,11 @@ Route::middleware(['auth', 'role:doctor,pharmacist'])->group(function () {
         ->name('resep.complete');
     Route::post('resep/{resep}/process', [ResepController::class, 'process'])
         ->name('resep.process');
+});
+
+Route::middleware(['auth', 'role:doctor'])->group(function () {
+    Route::get('pasien', [PasienController::class, 'index'])
+        ->name('pasien.index');
 });
 
 Route::middleware(['auth', 'role:pharmacist'])->group(function () {

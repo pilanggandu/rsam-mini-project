@@ -1,5 +1,4 @@
 <x-app-layout>
-    {{-- Header Bawaan Breeze --}}
     <x-slot name="header">
         <div>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -25,9 +24,7 @@
                  DASHBOARD: DOCTOR
                  ======================= --}}
             @if ($role === 'doctor')
-                {{-- Stat cards --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {{-- Total resep saya hari ini --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -42,7 +39,6 @@
                         </div>
                     </div>
 
-                    {{-- Pasien unik bulan ini --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -57,7 +53,6 @@
                         </div>
                     </div>
 
-                    {{-- Resep menunggu apotek --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -72,7 +67,6 @@
                         </div>
                     </div>
 
-                    {{-- Resep draft --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -88,7 +82,6 @@
                     </div>
                 </div>
 
-                {{-- Resep terbaru --}}
                 <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                     <div class="p-6">
                         <div class="flex items-center justify-between gap-3">
@@ -156,7 +149,6 @@
                     </div>
                 </div>
 
-                {{-- Resep menunggu apotek (detail list) --}}
                 <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                     <div class="p-6">
                         <h3 class="text-sm font-semibold text-slate-800">
@@ -203,9 +195,7 @@
                  DASHBOARD: PHARMACIST
                  ======================= --}}
             @if ($role === 'pharmacist')
-                {{-- Stat cards --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {{-- Resep perlu disiapkan --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -220,7 +210,6 @@
                         </div>
                     </div>
 
-                    {{-- Resep siap diambil --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -235,7 +224,6 @@
                         </div>
                     </div>
 
-                    {{-- Penjualan hari ini (jumlah transaksi) --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -250,7 +238,6 @@
                         </div>
                     </div>
 
-                    {{-- Total nilai penjualan hari ini --}}
                     <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                         <div class="p-4">
                             <div class="text-xs font-medium text-slate-500 mb-1">
@@ -266,7 +253,6 @@
                     </div>
                 </div>
 
-                {{-- Resep menunggu apotek untuk apoteker --}}
                 <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
                     <div class="p-6">
                         <h3 class="text-sm font-semibold text-slate-800">

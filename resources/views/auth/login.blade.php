@@ -1,4 +1,86 @@
 <x-guest-layout>
+    @env('local')
+        <div class="mb-6">
+            <p class="mb-2 text-[11px] text-slate-500 text-center sm:text-left">
+                Contoh akun (jalankan <span class="font-semibold">php artisan db:seed</span>). atau bisa melakukan register.
+            </p>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+                {{-- Card Dokter --}}
+                <div class="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-xs text-emerald-900">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-[11px] font-semibold text-white">
+                                DR
+                            </span>
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-700">
+                                    Dokter
+                                </p>
+                            </div>
+                        </div>
+                        <span
+                            class="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-medium text-emerald-700 border border-emerald-100">
+                            Dev
+                        </span>
+                    </div>
+
+                    <div class="mt-2 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-emerald-800/80">Email</span>
+                            <span class="font-mono text-[11px] font-medium">
+                                doctor@example.com
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-emerald-800/80">Password</span>
+                            <span class="font-mono text-[11px] font-medium">
+                                password
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Card Apoteker --}}
+                <div class="rounded-2xl border border-sky-200 bg-sky-50/80 px-4 py-3 text-xs text-sky-900">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-600 text-[11px] font-semibold text-white">
+                                AP
+                            </span>
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-700">
+                                    Apoteker
+                                </p>
+                            </div>
+                        </div>
+                        <span
+                            class="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-medium text-sky-700 border border-sky-100">
+                            Dev
+                        </span>
+                    </div>
+
+                    <div class="mt-2 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-sky-800/80">Email</span>
+                            <span class="font-mono text-[11px] font-medium">
+                                pharmacist@example.com
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] text-sky-800/80">Password</span>
+                            <span class="font-mono text-[11px] font-medium">
+                                password
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endenv
+
     <div class="mb-8 text-center">
         <h1 class="text-xl font-semibold text-slate-900">Masuk ke Sistem</h1>
         <p class="mt-1 text-sm text-slate-500">
